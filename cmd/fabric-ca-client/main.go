@@ -24,7 +24,7 @@ import (
 
 // The fabric-ca client main
 func main() {
-	if err := command.RunMain(os.Args); err != nil {
+	if err := command.RunMain(os.Args); err != nil { // cmd/fabric-ca-client/command의 RunMain 함수 호출
 		os.Exit(1)
 	}
 }
