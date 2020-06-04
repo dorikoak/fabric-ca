@@ -128,7 +128,9 @@ func NewCommand(name string) *ClientCmd {
 
 // Execute runs this ClientCmd
 func (c *ClientCmd) Execute() error {
-	return c.rootCmd.Execute()
+	return c.rootCmd.Execute()	// cobra.Command 타입의 Execute 실행
+	// 내부에서 ExcuteC()함수가 다시 호출
+	// 명령어를 완성하여 실행시켜줌
 }
 
 // init initializes the ClientCmd instance
