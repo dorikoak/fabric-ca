@@ -752,6 +752,7 @@ func (ca *CA) initEnrollmentSigner() (err error) {
 }
 
 // loadUsersTable adds the configured users to the table if not already found
+// 사용자를 찾지 못한 경우 테이블에 추가
 func (ca *CA) loadUsersTable() error {
 	log.Debug("Loading identity table")
 	registry := &ca.Config.Registry
@@ -767,6 +768,7 @@ func (ca *CA) loadUsersTable() error {
 }
 
 // loadAffiliationsTable adds the configured affiliations to the table
+// 구성된 affiliations 테이블에 추가
 func (ca *CA) loadAffiliationsTable() error {
 	log.Debug("Loading affiliations table")
 	err := ca.loadAffiliationsTableR(ca.Config.Affiliations, "")
@@ -778,6 +780,7 @@ func (ca *CA) loadAffiliationsTable() error {
 }
 
 // Recursive function to load the affiliations table hierarchy
+// affiliations 테이블 계층을로드하는 재귀 함수
 func (ca *CA) loadAffiliationsTableR(val interface{}, parentPath string) (err error) {
 	var path string
 	if val == nil {
@@ -821,6 +824,7 @@ func (ca *CA) loadAffiliationsTableR(val interface{}, parentPath string) (err er
 }
 
 // Add an identity to the registry
+// 레지스트리에 ID 
 func (ca *CA) addIdentity(id *CAConfigIdentity, errIfFound bool) error {
 	var err error
 	user, _ := ca.registry.GetUser(id.Name, nil)
@@ -860,21 +864,25 @@ func (ca *CA) addIdentity(id *CAConfigIdentity, errIfFound bool) error {
 	return nil
 }
 
+// addAffiliation 추가
 func (ca *CA) addAffiliation(path, parentPath string) error {
 	return ca.registry.InsertAffiliation(path, parentPath, ca.levels.Affiliation)
 }
 
 // CertDBAccessor returns the certificate DB accessor for CA
+//  CA용 DB 접근 인증서를 반환
 func (ca *CA) CertDBAccessor() *CertDBAccessor {
 	return ca.certDBAccessor
 }
 
 // DBAccessor returns the registry DB accessor for server
+//  서버용 레지스트리 DB 접근 인증서를 반환
 func (ca *CA) DBAccessor() user.Registry {
 	return ca.registry
 }
 
 // GetDB returns pointer to database
+// DB의 포인터 반환
 func (ca *CA) GetDB() db.FabricCADB {
 	return ca.db
 }
