@@ -554,6 +554,7 @@ func (ca *CA) getVerifyOptions() (*x509.VerifyOptions, error) {
 }
 
 // Initialize the database for the CA
+// CA 
 func (ca *CA) initDB(metrics *db.Metrics) error {
 	log.Debug("Initializing DB")
 
@@ -714,15 +715,16 @@ func (ca *CA) initUserRegistry() error {
 }
 
 // Initialize the enrollment signer
+// 등록자 서명 초기화
 func (ca *CA) initEnrollmentSigner() (err error) {
 	log.Debug("Initializing enrollment signer")
 	c := ca.Config
 
 	// If there is a config, use its signing policy. Otherwise create a default policy.
-	var policy *config.Signing
+	var policy *config.Signing	//config 선언 어디?
 	if c.Signing != nil {
 		policy = c.Signing
-	} else {
+	} else {	// 기존 서명 정책이 존재하지 않으면, 
 		policy = &config.Signing{
 			Profiles: map[string]*config.SigningProfile{},
 			Default:  config.DefaultConfig(),
