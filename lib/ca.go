@@ -479,14 +479,18 @@ func (ca *CA) initConfig() (err error) {
 	return nil
 }
 
-// VerifyCertificate verifies that 'cert' was issued by this CA
-// Return nil if successful; otherwise, return an error.
+// VerifyCertificate메소드는 이 'CA'객체가 'cert'를 발급했는지 확인함
+// Return nil if successful; otherwise, return an error. 설명대로
 func (ca *CA) VerifyCertificate(cert *x509.Certificate) error {
-	opts, err := ca.getVerifyOptions()
+	opts, err := ca.getVerifyOptions()	//바로 밑에 선언된 메소드 검증 옵션을 얻는 메소드라고 함
 	if err != nil {
 		return errors.WithMessage(err, "Failed to get verify options")
 	}
-	_, err = cert.Verify(*opts)
+	_, err = cert.Verify(*opts)	//cert.Verify() 메소드를 통해 얻은 검증 옵션의 검증을 진행
+	// opts.Roots==nil이고 runtime.GOOS=="windows"일경우 systemVerify(&opts) 메소드로 이동
+	// 그 이외의 opts.Roots==nil은 ERR 반환
+	// 각종 opts의 설정을 보고 candidateChains(후보자 체인:기존 사용자의 체인이란건가?)을 통해 검증
+	
 	if err != nil {
 		return errors.WithMessage(err, "Failed to verify certificate")
 	}
