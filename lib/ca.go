@@ -98,7 +98,7 @@ type CA struct {
 	// Idemix issuer
 	issuer idemix.Issuer
 	// The options to use in verifying a signature in token-based authentication
-	verifyOptions *x509.VerifyOptions
+	verifyOptions *x509.VerifyOptions	// 검증 옵션
 	// The attribute manager
 	attrMgr *attrmgr.Mgr
 	// The server hosting this CA
@@ -431,7 +431,7 @@ func (ca *CA) initConfig() (err error) {
 		cfg.Version = "0"
 	}
 	if cfg.CA.Certfile == "" {
-		cfg.CA.Certfile = "ca-cert.pem"	//파일 이름인것 같음
+		cfg.CA.Certfile = "ca-cert.pem"	//파일 이름인것 같음 어떤 파일인지 파악 불가
 	}
 	if cfg.CA.Keyfile == "" {
 		cfg.CA.Keyfile = "ca-key.pem"
@@ -452,8 +452,9 @@ func (ca *CA) initConfig() (err error) {
 	if cs.Profiles == nil {
 		cs.Profiles = make(map[string]*config.SigningProfile)
 	}
-	caProfile := cs.Profiles["ca"]
-	initSigningProfile(&caProfile,
+	//Profiles는 map 자료형으로 map은 딕셔너리와 비슷
+	caProfile := cs.Profiles["ca"]	// 기존 cs.Profiles["ca"]를 caProfile에 저장해둠
+	initSigningProfile(&caProfile,	//그러고는 initSigningProfile의 인수로 넣음 
 		defaultIntermediateCACertificateExpiration,
 		true)
 	cs.Profiles["ca"] = caProfile
@@ -498,8 +499,9 @@ func (ca *CA) VerifyCertificate(cert *x509.Certificate) error {
 }
 
 // Get the options to verify
+// CA.verifyOptions 값을 반환하는 함수,
 func (ca *CA) getVerifyOptions() (*x509.VerifyOptions, error) {
-	if ca.verifyOptions != nil {
+	if ca.verifyOptions != nil {	// ca.verifyOptions가 nil이 아니면 그 값을 반환
 		return ca.verifyOptions, nil
 	}
 	chain, err := ca.getCAChain()
@@ -1252,6 +1254,7 @@ func parseDuration(str string) time.Duration {
 	return d
 }
 
+// initConfig() 메소드에 사용되는 
 func initSigningProfile(spp **config.SigningProfile, expiry time.Duration, isCA bool) {
 	sp := *spp
 	if sp == nil {
