@@ -22,13 +22,18 @@ import (
 	"sync"
 	"time"
 
+	// X.509로 인증서를 발급해주는 것 같음
+	// cloudflare의 PKI/TLS 용 패키지 JSON 파일로 인증서 내용을 정할 수 있음 
+	// https://github.com/cloudflare/cfssl/blob/master/README.md
 	"github.com/cloudflare/cfssl/certdb"
 	"github.com/cloudflare/cfssl/config"
 	cfcsr "github.com/cloudflare/cfssl/csr"
 	"github.com/cloudflare/cfssl/initca"
 	"github.com/cloudflare/cfssl/log"
 	"github.com/cloudflare/cfssl/signer"
-	cflocalsigner "github.com/cloudflare/cfssl/signer/local"
+	cflocalsigner "github.com/cloudflare/cfssl/signer/local" // 로컬에서 cloudflare 기능을 사용할 수 있도록 하는 패키지
+	
+	// 현 파일 fabric-ca 내 패키지
 	"github.com/hyperledger/fabric-ca/internal/pkg/api"
 	"github.com/hyperledger/fabric-ca/internal/pkg/util"
 	"github.com/hyperledger/fabric-ca/lib/attr"
@@ -36,8 +41,8 @@ import (
 	"github.com/hyperledger/fabric-ca/lib/caerrors"
 	"github.com/hyperledger/fabric-ca/lib/metadata"
 	"github.com/hyperledger/fabric-ca/lib/server/db"
-	cadb "github.com/hyperledger/fabric-ca/lib/server/db"
-	cadbfactory "github.com/hyperledger/fabric-ca/lib/server/db/factory"
+	cadb "github.com/hyperledger/fabric-ca/lib/server/db"	
+	cadbfactory "github.com/hyperledger/fabric-ca/lib/server/db/factory"	
 	"github.com/hyperledger/fabric-ca/lib/server/db/mysql"
 	"github.com/hyperledger/fabric-ca/lib/server/db/postgres"
 	"github.com/hyperledger/fabric-ca/lib/server/db/sqlite"
@@ -47,6 +52,9 @@ import (
 	"github.com/hyperledger/fabric-ca/lib/server/user"
 	cadbuser "github.com/hyperledger/fabric-ca/lib/server/user"
 	"github.com/hyperledger/fabric-ca/lib/tls"
+	
+	// 기존 fabric 구성 파일 중 bccsp(Blockchain Cryptographic Service Provider)
+	// AES, ECDSA, HASH, IDMix 등등 다양한 암호화 기술
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/pkg/errors"
 )
@@ -401,8 +409,9 @@ func (ca *CA) getCAChain() (chain []byte, err error) {
 }
 
 // Initialize the configuration for the CA setting any defaults and making filenames absolute
-func (ca *CA) initConfig() (err error) {
+func (ca *CA) initConfig() (err error) { 
 	// Init home directory if not set
+	// 홈 디렉토리가 설정되지 않았다면, 초기화 해준다 (간단하게 경로설정)
 	if ca.HomeDir == "" {
 		ca.HomeDir, err = os.Getwd()
 		if err != nil {
@@ -410,10 +419,11 @@ func (ca *CA) initConfig() (err error) {
 		}
 	}
 	log.Debugf("CA Home Directory: %s", ca.HomeDir)
+	// 마찬가지로 ca 객체의 나머지 필드또한 설정값이 없다면, 초기화 시켜준다.
 	// Init config if not set
 	if ca.Config == nil {
 		ca.Config = new(CAConfig)
-		ca.Config.Registry.MaxEnrollments = -1
+		ca.Config.Registry.MaxEnrollments = -1	// 최대 관리자 수의 초기값은 -1인듯
 	}
 	// Set config defaults
 	cfg := ca.Config
@@ -421,7 +431,7 @@ func (ca *CA) initConfig() (err error) {
 		cfg.Version = "0"
 	}
 	if cfg.CA.Certfile == "" {
-		cfg.CA.Certfile = "ca-cert.pem"
+		cfg.CA.Certfile = "ca-cert.pem"	//파일 이름인것 같음
 	}
 	if cfg.CA.Keyfile == "" {
 		cfg.CA.Keyfile = "ca-key.pem"
